@@ -26,7 +26,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.samples.apps.nowinandroid.core.designsystem.component.NiaButton
 import com.google.samples.apps.nowinandroid.core.designsystem.theme.NiaTheme
 import com.google.samples.apps.nowinandroid.core.domain.model.SaveableNewsResource
 import com.google.samples.apps.nowinandroid.core.model.data.previewNewsResources
@@ -46,11 +49,17 @@ import com.google.samples.apps.nowinandroid.core.model.data.previewNewsResources
  */
 fun LazyGridScope.newsFeed(
     feedState: NewsFeedUiState,
-    onNewsResourcesCheckedChanged: (String, Boolean) -> Unit
+    onNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
+    toggleOnlyShowVideos: () -> Unit,
 ) {
     when (feedState) {
         NewsFeedUiState.Loading -> Unit
         is NewsFeedUiState.Success -> {
+            item {
+                NiaButton(onClick = toggleOnlyShowVideos) {
+                    Text("Toggle videos only")
+                }
+            }
             items(feedState.feed, key = { it.newsResource.id }) { saveableNewsResource ->
                 val resourceUrl by remember {
                     mutableStateOf(Uri.parse(saveableNewsResource.newsResource.url))
@@ -111,7 +120,8 @@ private fun NewsFeedLoadingPreview() {
         LazyVerticalGrid(columns = GridCells.Adaptive(300.dp)) {
             newsFeed(
                 feedState = NewsFeedUiState.Loading,
-                onNewsResourcesCheckedChanged = { _, _ -> }
+                onNewsResourcesCheckedChanged = { _, _ -> },
+                toggleOnlyShowVideos = {}
             )
         }
     }
@@ -132,7 +142,8 @@ private fun NewsFeedContentPreview() {
                         )
                     }
                 ),
-                onNewsResourcesCheckedChanged = { _, _ -> }
+                onNewsResourcesCheckedChanged = { _, _ -> },
+                toggleOnlyShowVideos = {}
             )
         }
     }

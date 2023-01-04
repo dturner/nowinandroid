@@ -16,6 +16,7 @@
 
 package com.google.samples.apps.nowinandroid.feature.foryou
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.samples.apps.nowinandroid.core.data.repository.UserDataRepository
@@ -23,10 +24,12 @@ import com.google.samples.apps.nowinandroid.core.data.util.SyncStatusMonitor
 import com.google.samples.apps.nowinandroid.core.domain.GetFollowableTopicsUseCase
 import com.google.samples.apps.nowinandroid.core.domain.GetSaveableNewsResourcesUseCase
 import com.google.samples.apps.nowinandroid.core.domain.model.SaveableNewsResource
+import com.google.samples.apps.nowinandroid.core.model.data.NewsResourceType.Video
 import com.google.samples.apps.nowinandroid.core.ui.NewsFeedUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -47,6 +50,11 @@ class ForYouViewModel @Inject constructor(
 
     private val shouldShowOnboarding: Flow<Boolean> =
         userDataRepository.userData.map { !it.shouldHideOnboarding }
+    private var shouldOnlyShowVideos = MutableStateFlow(false)
+
+    fun toggleShouldOnlyShowVideos(){
+        shouldOnlyShowVideos.value = !shouldOnlyShowVideos.value
+    }
 
     val isSyncing = syncStatusMonitor.isSyncing
         .stateIn(
@@ -56,21 +64,29 @@ class ForYouViewModel @Inject constructor(
         )
 
     val feedState: StateFlow<NewsFeedUiState> =
-        userDataRepository.userData
-            .map { userData ->
-                // If the user hasn't completed the onboarding and hasn't selected any interests
-                // show an empty news list to clearly demonstrate that their selections affect the
-                // news articles they will see.
-                if (!userData.shouldHideOnboarding &&
-                    userData.followedTopics.isEmpty()
-                ) {
-                    flowOf(NewsFeedUiState.Success(emptyList()))
-                } else {
-                    getSaveableNewsResources(
-                        filterTopicIds = userData.followedTopics
-                    ).mapToFeedState()
+        combine (
+            userDataRepository.userData,
+            shouldOnlyShowVideos
+        ) { userData, shouldOnlyShowVideosStream ->
+
+            // If the user hasn't completed the onboarding and hasn't selected any interests
+            // show an empty news list to clearly demonstrate that their selections affect the
+            // news articles they will see.
+            if (!userData.shouldHideOnboarding &&
+                userData.followedTopics.isEmpty()
+            ) {
+                flowOf(NewsFeedUiState.Success(emptyList()))
+            } else {
+                getSaveableNewsResources(
+                    filterTopicIds = userData.followedTopics
+                ).map {
+                    it.filter { newsItem ->
+                        !shouldOnlyShowVideosStream || newsItem.newsResource.type == Video
+                    }
                 }
+                .mapToFeedState()
             }
+        }
             // Flatten the feed flows.
             // As the selected topics and topic state changes, this will cancel the old feed
             // monitoring and start the new one.

@@ -108,6 +108,7 @@ internal fun ForYouRoute(
         onTopicCheckedChanged = viewModel::updateTopicSelection,
         saveFollowedTopics = viewModel::dismissOnboarding,
         onNewsResourcesCheckedChanged = viewModel::updateNewsResourceSaved,
+        toggleOnlyShowVideos = viewModel::toggleShouldOnlyShowVideos,
         modifier = modifier
     )
 }
@@ -120,6 +121,7 @@ internal fun ForYouScreen(
     onTopicCheckedChanged: (String, Boolean) -> Unit,
     saveFollowedTopics: () -> Unit,
     onNewsResourcesCheckedChanged: (String, Boolean) -> Unit,
+    toggleOnlyShowVideos: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val isOnboardingLoading = onboardingUiState is OnboardingUiState.Loading
@@ -177,6 +179,7 @@ internal fun ForYouScreen(
         newsFeed(
             feedState = feedState,
             onNewsResourcesCheckedChanged = onNewsResourcesCheckedChanged,
+            toggleOnlyShowVideos = toggleOnlyShowVideos,
         )
 
         item(span = { GridItemSpan(maxLineSpan) }) {
@@ -402,7 +405,8 @@ fun ForYouScreenPopulatedFeed() {
                 ),
                 onTopicCheckedChanged = { _, _ -> },
                 saveFollowedTopics = {},
-                onNewsResourcesCheckedChanged = { _, _ -> }
+                onNewsResourcesCheckedChanged = { _, _ -> },
+                toggleOnlyShowVideos = {}
             )
         }
     }
@@ -423,7 +427,8 @@ fun ForYouScreenOfflinePopulatedFeed() {
                 ),
                 onTopicCheckedChanged = { _, _ -> },
                 saveFollowedTopics = {},
-                onNewsResourcesCheckedChanged = { _, _ -> }
+                onNewsResourcesCheckedChanged = { _, _ -> },
+                toggleOnlyShowVideos = {}
             )
         }
     }
@@ -446,7 +451,8 @@ fun ForYouScreenTopicSelection() {
                 ),
                 onTopicCheckedChanged = { _, _ -> },
                 saveFollowedTopics = {},
-                onNewsResourcesCheckedChanged = { _, _ -> }
+                onNewsResourcesCheckedChanged = { _, _ -> },
+                toggleOnlyShowVideos = {}
             )
         }
     }
@@ -463,7 +469,8 @@ fun ForYouScreenLoading() {
                 feedState = NewsFeedUiState.Loading,
                 onTopicCheckedChanged = { _, _ -> },
                 saveFollowedTopics = {},
-                onNewsResourcesCheckedChanged = { _, _ -> }
+                onNewsResourcesCheckedChanged = { _, _ -> },
+                toggleOnlyShowVideos = {}
             )
         }
     }
@@ -484,7 +491,8 @@ fun ForYouScreenPopulatedAndLoading() {
                 ),
                 onTopicCheckedChanged = { _, _ -> },
                 saveFollowedTopics = {},
-                onNewsResourcesCheckedChanged = { _, _ -> }
+                onNewsResourcesCheckedChanged = { _, _ -> },
+                toggleOnlyShowVideos = {}
             )
         }
     }

@@ -126,6 +126,7 @@ private fun BookmarksGrid(
         newsFeed(
             feedState = feedState,
             onNewsResourcesCheckedChanged = { id, _ -> removeFromBookmarks(id) },
+            toggleOnlyShowVideos = {}
         )
         item(span = { GridItemSpan(maxLineSpan) }) {
             Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.safeDrawing))
